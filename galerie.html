@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galerie Photo Quotidienne</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fbe2f1;
+      color: #333;
+    }
+    .container {
+      width: 90%;
+      max-width: 1100px;
+      margin: 50px auto;
+      text-align: center;
+    }
+    h1 {
+      color: #e91e63;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+    }
+    .user-section {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      margin-bottom: 40px;
+      transition: all 0.3s ease;
+    }
+    .user-section:hover {
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+    h2 {
+      color: #555;
+      font-size: 1.8rem;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .gallery img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .photo-container {
+      text-align: center;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    .heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      color: #ff4081;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .heart:hover {
+      transform: scale(1.2);
+    }
+    .button-container {
+      margin-top: 20px;
+    }
+    input[type="file"] {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #e91e63;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #d81b60;
+    }
+    .message {
+      margin-top: 15px;
+      color: #ff6347;
+      font-size: 1.2rem;
+    }
+    .attention-message {
+      background-color: #ffeb3b;
+      color: #c2185b;
+      font-size: 1.2rem;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 30px;
+      animation: attentionAnim 3s infinite;
+      text-align: center;
+      font-weight: bold;
+    }
+    @keyframes attentionAnim {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(10px); }
+      100% { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>1 Photo par jour pendant 120 jours</h1>
+
+    <!-- Message d'attention -->
+    <div class="attention-message">
+      Attention : Une photo par jour seulement ! Assure-toi de télécharger la photo correcte.
+    </div>
+
+    <!-- Section pour Rachele -->
+    <div class="user-section" id="rachele">
+      <h2>Rachele</h2>
+      <form id="racheleForm">
+        <input type="file" id="racheleInput" accept="image/*">
+        <button type="submit">Ajouter la photo du jour</button>
+      </form>
+      <div class="message" id="racheleMessage"></div>
+      <div class="gallery" id="racheleGallery">
+        <!-- Les photos de Rachele seront affichées ici -->
+      </div>
+    </div>
+
+    <!-- Section pour Ilias -->
+    <div class="user-section" id="ilias">
+      <h2>Ilias</h2>
+      <form id="iliasForm">
+        <input type="file" id="iliasInput" accept="image/*">
+        <button type="submit">Ajouter la photo du jour</button>
+      </form>
+      <div class="message" id="iliasMessage"></div>
+      <div class="gallery" id="iliasGallery">
+        <!-- Les photos d'Ilias seront affichées ici -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fonction pour vérifier si une photo a déjà été ajoutée aujourd'hui
+    function isPhotoUploaded(user) {
+      const currentDate = new Date().toISOString().split('T')[0]; // format YYYY-MM-DD
+      const storedDate = localStorage.getItem(`${user}PhotoDate`);
+      return storedDate === currentDate;
+    }
+
+    // Fonction générique pour ajouter une photo à la galerie
+    function handlePhotoUpload(event, user) {
+      event.preventDefault();
+      
+      const input = document.getElementById(`${user}Input`);
+      const file = input.files[0];
+      const currentDate = new Date().toISOString().split('T')[0]; // format YYYY-MM-DD
+      
+      if (isPhotoUploaded(user)) {
+        document.getElementById(`${user}Message`).textContent = "Vous avez déjà ajouté une photo aujourd'hui.";
+        return;
+      }
+
+      if (file) {
+        // Crée un élément image et l'ajoute à la galerie
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          // Créer un conteneur pour l'image et la date
+          const gallery = document.getElementById(`${user}Gallery`);
+          const imgContainer = document.createElement('div');
+          imgContainer.classList.add('photo-container');
+          imgContainer.innerHTML = `<strong>${currentDate}</strong>`;
+          
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.alt = file.name;
+          
+          const heartIcon = document.createElement('span');
+          heartIcon.classList.add('heart');
+          heartIcon.innerHTML = '❤️';
+          
+          imgContainer.appendChild(img);
+          imgContainer.appendChild(heartIcon);
+          gallery.appendChild(imgContainer);
+
+          // Enregistrer la date actuelle dans le localStorage pour empêcher l'ajout multiple
+          localStorage.setItem(`${user}PhotoDate`, currentDate);
+        };
+        
+        reader.readAsDataURL(file); // Charger l'image
+      }
+    }
+
+    // Ajouter un gestionnaire d'événements pour Rachele
+    document.getElementById('racheleForm').addEventListener('submit', function(event) {
+      handlePhotoUpload(event, 'rachele');
+    });
+
+    // Ajouter un gestionnaire d'événements pour Ilias
+    document.getElementById('iliasForm').addEventListener('submit', function(event) {
+      handlePhotoUpload(event, 'ilias');
+    });
+  </script>
+
+</body>
+</html>
